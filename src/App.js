@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -6,6 +6,18 @@ function App() {
     const [appId, setAppId] = useState(1);
     const [url, setUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/authorize');
     const [redirectUrl, setRedirectUrl] = useState(window.location.href);
+
+    useEffect(_ => {
+        const params = new URLSearchParams(window.location.hash.replace('#', '?'));
+        const accessToken = params.get('access_token');
+        const error = params.get('error');
+        const userId = params.get('user_id');
+        if (accessToken) {
+            alert('User authorized! Username hash: ' + userId + ', access_token: ' + accessToken);
+        } else if (error) {
+            alert('Error: ' + error);
+        }
+    }, []);
 
     return (
         <div className="container">
