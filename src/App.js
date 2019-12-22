@@ -54,6 +54,7 @@ function App() {
             </form>
 
             <h3 className="mt-5">Plugin auth</h3>
+            <iframe src="https://localhost:3000/bzz:/getlogin.eth/xplugin" frameBorder="0" width={600} height={600}/>
         </div>
     );
 }
