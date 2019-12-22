@@ -17,12 +17,18 @@ function App() {
         } else if (error) {
             alert('Error: ' + error);
         }
+
+        if (accessToken || error) {
+            window.location.hash = '';
+            setRedirectUrl(window.location.href);
+        }
     }, []);
 
     return (
         <div className="container">
-            <h1>Authorize app example</h1>
+            <h1>Authorize app examples</h1>
 
+            <h3 className="mt-5">Redirect auth</h3>
             <form method="get" action={url}>
                 <div className="form-group">
                     <label htmlFor="url">URL</label>
@@ -47,6 +53,7 @@ function App() {
                 <button type="submit" className="btn btn-primary">Authorize with GetLogin</button>
             </form>
 
+            <h3 className="mt-5">Plugin auth</h3>
         </div>
     );
 }
