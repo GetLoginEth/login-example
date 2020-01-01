@@ -2,6 +2,15 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+const listener = (event) => {
+    console.log(event.data);
+    if (event.data.hola === 'ok') {
+        console.log('EXAMPLE (Login). Tx: ' + event.data.tx);
+    }
+};
+
+window.addEventListener("message", listener);
+
 function App() {
     const [appId, setAppId] = useState(1);
     const [url, setUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/authorize');
@@ -54,7 +63,11 @@ function App() {
             </form>
 
             <h3 className="mt-5">Plugin auth</h3>
-            <iframe src="https://localhost:3000/bzz:/getlogin.eth/xplugin" frameBorder="0" width={600} height={600}/>
+            <button className="btn btn-primary" onClick={_ => {
+                window.getLoginApi.test().then(data=>alert('test 111 OK')).catch(e=>alert('test not ok: '+e));
+                window.getLoginApi.testTwo().then(data=>alert('test 222 OK')).catch(e=>alert('test 222not ok: '+e));
+            }}>Test
+            </button>
         </div>
     );
 }
