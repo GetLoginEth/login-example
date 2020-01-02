@@ -2,18 +2,10 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const listener = (event) => {
-    console.log(event.data);
-    if (event.data.hola === 'ok') {
-        console.log('EXAMPLE (Login). Tx: ' + event.data.tx);
-    }
-};
-
-window.addEventListener("message", listener);
-
 function App() {
     const [appId, setAppId] = useState(1);
     const [url, setUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/authorize');
+    const [pluginUrl, setPluginUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/xplugin');
     const [redirectUrl, setRedirectUrl] = useState(window.location.href);
 
     useEffect(_ => {
@@ -42,13 +34,13 @@ function App() {
                 <div className="form-group">
                     <label htmlFor="url">URL</label>
                     <input type="text" className="form-control" id="url"
-                           placeholder="App ID" value={url} onChange={e => setUrl(e.target.value)}/>
+                           placeholder="URL" value={url} onChange={e => setUrl(e.target.value)}/>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="appId">Client ID</label>
                     <input type="text" name="client_id" className="form-control" id="appId"
-                           placeholder="App ID" value={appId} onChange={e => setAppId(e.target.value)}/>
+                           placeholder="Client ID" value={appId} onChange={e => setAppId(e.target.value)}/>
                 </div>
 
                 <div className="form-group">
@@ -63,10 +55,25 @@ function App() {
             </form>
 
             <h3 className="mt-5">Plugin auth</h3>
+            <div className="form-group">
+                <label htmlFor="url">Plugin URL</label>
+                <input type="text" className="form-control" id="plugin-url"
+                       placeholder="Plugin URL" value={pluginUrl} onChange={e => setPluginUrl(e.target.value)}/>
+            </div>
+
+            <button className="btn btn-primary mr-3" onClick={_ => {
+                window.getLoginApi.init(pluginUrl)
+                    .then(data => {
+                        alert(data);
+                    });
+            }}>
+                Init
+            </button>
+
             <button className="btn btn-primary" onClick={_ => {
-                window.getLoginApi.test().then(data=>alert('test 111 OK')).catch(e=>alert('test not ok: '+e));
-                window.getLoginApi.testTwo().then(data=>alert('test 222 OK')).catch(e=>alert('test 222not ok: '+e));
-            }}>Test
+                window.getLoginApi.getUserInfo().then(data => alert('test 111 OK ' + JSON.stringify(data))).catch(e => alert(e));
+            }}>
+                Test
             </button>
         </div>
     );
