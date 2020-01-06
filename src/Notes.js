@@ -7,8 +7,8 @@ export default function Notes() {
     let interval = null;
 
     const init = () => {
+        window.getLoginApi.init(2, 'https://swarm-gateways.net/bzz:/a97c9c4c5ba171afd7a8859d6c317e2d7ff3a42c3d1610686bba6626764957f6/', window.location.href)
         //window.getLoginApi.init(2, 'https://localhost:3000/bzz:/getlogin.eth/', window.location.href)
-        window.getLoginApi.init(2, 'https://localhost:3000/bzz:/getlogin.eth/', window.location.href)
             .then(data => {
                 console.log(data);
                 if (!data.result) {
