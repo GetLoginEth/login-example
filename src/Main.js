@@ -4,7 +4,7 @@ function Main() {
     const [appId, setAppId] = useState(1);
     const [url, setUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/authorize');
     const [pluginUrl, setPluginUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/xplugin');
-    const [redirectUrl, setRedirectUrl] = useState(window.location.href);
+    const [redirectUri, setRedirectUri] = useState(window.location.href);
 
     useEffect(_ => {
         const params = new URLSearchParams(window.location.hash.replace('#', '?'));
@@ -19,7 +19,7 @@ function Main() {
 
         if (accessToken || error) {
             window.location.hash = '';
-            setRedirectUrl(window.location.href);
+            setRedirectUri(window.location.href);
         }
     }, []);
 
@@ -43,9 +43,9 @@ function Main() {
 
                 <div className="form-group">
                     <label htmlFor="redirectUrl">Redirect URL</label>
-                    <input type="text" name="redirect_url" className="form-control" id="redirectUrl"
-                           placeholder="Redirect URL" value={redirectUrl}
-                           onChange={e => setRedirectUrl(e.target.value)}/>
+                    <input type="text" name="redirect_uri" className="form-control" id="redirectUrl"
+                           placeholder="Redirect URL" value={redirectUri}
+                           onChange={e => setRedirectUri(e.target.value)}/>
                 </div>
 
 
