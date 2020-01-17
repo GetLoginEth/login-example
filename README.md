@@ -1,6 +1,6 @@
 ## GetLogin test app
 
-Here you can test GetLogin. https://projecturl/ - display web3 app, https://projecturl/#test - display OpenID Connect form
+Here you can test GetLogin. https://projecturl/ - display web3 app, https://projecturl/openid - display OpenID Connect form
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
