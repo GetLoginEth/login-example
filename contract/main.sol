@@ -18,10 +18,14 @@ contract owned {
     }
 }
 
+abstract contract GetLogin {
+    function getUsernameByAddress(address wallet) public virtual view returns (bytes32);
+}
+
 contract Notes is owned {
     struct Note
     {
-        uint64 id;
+        uint256 id;
         bytes32 usernameHash;
         string text;
         bool isActive;
@@ -29,24 +33,24 @@ contract Notes is owned {
 
     address public getLoginAddress = 0x9282e5434d22a1FA5f87Cda2498C877D644c334c;
     mapping(bytes32 => Note[]) public UserNotes;
-    mapping(bytes32 => uint64) public UserNoteId;
 
     function createNote(string memory text) public {
         bytes32 usernameHash = GetLogin(getLoginAddress).getUsernameByAddress(msg.sender);
-        uint64 noteId = UserNoteId[usernameHash];
-        UserNotes[usernameHash][noteId] = Note({id: noteId, usernameHash: usernameHash, text: text, isActive: true});
-        UserNoteId[usernameHash]++;
+        Note memory note = Note({id: 0, usernameHash: usernameHash, text: text, isActive: true});
+        UserNotes[usernameHash].push(note);
+        uint256 id = UserNotes[usernameHash].length - 1;
+        UserNotes[usernameHash][id].id = id;
     }
 
     function getNotes(bytes32 usernameHash) public view returns (Note[] memory) {
         return UserNotes[usernameHash];
     }
 
-    function changeGetLoginAddress(address newAddress) public onlyOwner {
+    function getUsername(address wallet) public view returns (bytes32) {
+        return GetLogin(getLoginAddress).getUsernameByAddress(wallet);
+    }
+
+    function setGetLoginAddress(address newAddress) public onlyOwner {
        getLoginAddress = newAddress;
     }
-}
-
-abstract contract GetLogin {
-    function getUsernameByAddress(address wallet) virtual public view returns (bytes32);
 }

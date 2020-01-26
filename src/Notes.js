@@ -4,6 +4,148 @@ const getDefaultUri = () => {
     return window.location.href.replace(window.location.hash, '').replace('#', '');
 };
 
+const abi = [
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "text",
+                "type": "string"
+            }
+        ],
+        "name": "createNote",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getLoginAddress",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "usernameHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "getNotes",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes32",
+                        "name": "usernameHash",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "text",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "isActive",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct Notes.Note[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "wallet",
+                "type": "address"
+            }
+        ],
+        "name": "getUsername",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newAddress",
+                "type": "address"
+            }
+        ],
+        "name": "setGetLoginAddress",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "UserNotes",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "usernameHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "string",
+                "name": "text",
+                "type": "string"
+            },
+            {
+                "internalType": "bool",
+                "name": "isActive",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+const address = '0x25a7D3AD29dba10BE86496B1D6367224B06123D2';
+
 export default function Notes() {
     const [status, setStatus] = useState('loading');
     const [authorizeUrl, setAuthorizeUrl] = useState(null);
@@ -26,12 +168,21 @@ export default function Notes() {
                 return;
             }
 
+
             setAuthorizeUrl(data.data.authorize_url);
             if (data.data.is_client_allowed) {
                 setStatus('authorized');
                 //setAccessToken(data.data.access_token);
                 const userInfo = await window.getLoginApi.getUserInfo();
                 setUser(userInfo);
+                window.getLoginApi.setClientAbi(abi);
+                window.getLoginApi.callContractMethod(address, 'getNotes', userInfo.usernameHash)
+                    .then(data => {
+                        setNotes(data);
+                    })
+                    .catch(e => {
+                        console.log(e);
+                    });
             } else {
                 setStatus('authorize');
             }
@@ -77,10 +228,10 @@ export default function Notes() {
                     Save note to smart contract
                 </button>
 
-                {notes && notes.length > 0 && <div>
-                    <h4>My notes</h4>
+                {notes && notes.length > 0 && <div style={{textAlign: 'left'}}>
+                    <h4 className="mt-3">My notes</h4>
                     {notes.map((item, index) => {
-                        return <p key={index}>{item}</p>
+                        return <p key={index}>ID: {item.id}<br/>{item.text}</p>
                     })}
                 </div>}
             </div>}
