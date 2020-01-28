@@ -7,16 +7,15 @@ import Notes from "./Notes";
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 
 function App() {
-    //const content = window.location.hash === '#test' ? <Main/> : <Notes/>;
     return (
         <Router>
             <div className="container">
                 <Switch>
-                    <Route exact path="/">
+                    <Route exact path="/:swarm_protocol?/:swarm_hash?/">
                         <Notes/>
                     </Route>
 
-                    <Route path="/openid">
+                    <Route path="/:swarm_protocol?/:swarm_hash?/openid">
                         <Main/>
                     </Route>
                 </Switch>
