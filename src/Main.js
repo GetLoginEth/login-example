@@ -1,11 +1,11 @@
-import React, {useEffect, useState, Fragment} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 
 const getDefaultUri = () => {
     return window.location.href.replace(window.location.hash, '').replace('#', '');
 };
 
 function Main() {
-    const baseApiUrl='https://localhost:3000/bzz:/getlogin.eth/';
+    const baseApiUrl = 'https://localhost:3000/bzz:/getlogin.eth/';
     const [appId, setAppId] = useState(1);
     const [url, setUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/xauthorize');
     const [pluginUrl, setPluginUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/xplugin');
