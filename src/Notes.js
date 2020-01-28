@@ -157,8 +157,8 @@ export default function Notes() {
     const [isWorking, setIsWorking] = useState(false);
 
     const appId = 1;
-    //const appUrl='https://swarm-gateways.net/bzz:/a97c9c4c5ba171afd7a8859d6c317e2d7ff3a42c3d1610686bba6626764957f6/;
-    const appUrl = 'https://localhost:3000/bzz:/getlogin.eth/';
+    const appUrl = 'https://swarm-gateways.net/bzz:/getlogin.eth/';
+    //const appUrl = 'https://localhost:3000/bzz:/getlogin.eth/';
 
     let interval = null;
 
