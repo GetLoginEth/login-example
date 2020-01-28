@@ -31,7 +31,7 @@ contract Notes is owned {
         bool isActive;
     }
 
-    address public getLoginAddress = 0x9282e5434d22a1FA5f87Cda2498C877D644c334c;
+    address public getLoginAddress = 0x8cc0D9698824d73A9ae15d69C94ac7335cf082D6;
     mapping(bytes32 => Note[]) public UserNotes;
 
     function createNote(string memory text) public {

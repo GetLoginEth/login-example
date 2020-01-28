@@ -1,4 +1,5 @@
 import React, {Fragment, useEffect, useState} from 'react';
+import WaitButton from "./Elements/WaitButton";
 
 const getDefaultUri = () => {
     return window.location.href.replace(window.location.hash, '').replace('#', '');
@@ -152,6 +153,8 @@ export default function Notes() {
     const [user, setUser] = useState(null);
     const [notes, setNotes] = useState([]);
     const [noteText, setNoteText] = useState('');
+    const [error, setError] = useState('');
+    const [isWorking, setIsWorking] = useState(false);
 
     const appId = 1;
     //const appUrl='https://swarm-gateways.net/bzz:/a97c9c4c5ba171afd7a8859d6c317e2d7ff3a42c3d1610686bba6626764957f6/;
@@ -176,13 +179,7 @@ export default function Notes() {
                 const userInfo = await window.getLoginApi.getUserInfo();
                 setUser(userInfo);
                 window.getLoginApi.setClientAbi(abi);
-                window.getLoginApi.callContractMethod(address, 'getNotes', userInfo.usernameHash)
-                    .then(data => {
-                        setNotes(data);
-                    })
-                    .catch(e => {
-                        console.log(e);
-                    });
+                updateNotes(userInfo.usernameHash);
             } else {
                 setStatus('authorize');
             }
@@ -200,6 +197,17 @@ export default function Notes() {
         }, 100);
     }, []);
 
+    const updateNotes = (usernameHash) => {
+        return window.getLoginApi.callContractMethod(address, 'getNotes', usernameHash)
+            .then(data => {
+                setNotes(data);
+            })
+            .catch(e => {
+                console.log(e);
+                setError(e);
+            });
+    };
+
     return <Fragment>
         <h1 className="text-center">Notes app example</h1>
 
@@ -215,18 +223,36 @@ export default function Notes() {
                 {/*status === 'authorized' && <p style={{color: 'green'}}>Application authorized!</p>*/}
                 <h4>Hello, {user.username}!</h4>
 
+                {error && error.length > 0 && <p style={{color: 'red'}}>{error}</p>}
+
                 <div className="input-group mb-3">
-                    <textarea value={noteText} onChange={e => setNoteText(e.target.value)} className="form-control"
+                    <textarea disabled={isWorking} value={noteText} onChange={e => setNoteText(e.target.value)}
+                              className="form-control"
                               placeholder="Text" maxLength={140}/>
 
                 </div>
                 <p className="text-muted">{noteText.length} / 140</p>
 
-                <button className="btn btn-primary" onClick={_ => {
-                    alert(123);
-                }}>
-                    Save note to smart contract
-                </button>
+                <WaitButton disabled={isWorking}>
+                    <button disabled={noteText.length === 0} className="btn btn-primary" onClick={_ => {
+                        setIsWorking(true);
+                        window.getLoginApi.sendTransaction(address, 'createNote', noteText)
+                            .then(data => {
+                                console.log(data);
+                                return updateNotes(user.usernameHash);
+                            })
+                            .catch(e => {
+                                console.log(e);
+                                setError(e);
+                            })
+                            .then(_ => {
+                                setNoteText('');
+                                setIsWorking(false);
+                            });
+                    }}>
+                        Save note to smart contract
+                    </button>
+                </WaitButton>
 
                 {notes && notes.length > 0 && <div style={{textAlign: 'left'}}>
                     <h4 className="mt-3">My notes</h4>
@@ -234,6 +260,15 @@ export default function Notes() {
                         return <p key={index}>ID: {item.id}<br/>{item.text}</p>
                     })}
                 </div>}
+
+                <div className="text-left">
+                    <h4 className="mt-3">App info</h4>
+                    <p>Smart contract URL: <a target="_blank"
+                                              href="https://rinkeby.etherscan.io/address/0x25a7D3AD29dba10BE86496B1D6367224B06123D2">
+                        https://rinkeby.etherscan.io/address/0x25a7D3AD29dba10BE86496B1D6367224B06123D2
+                    </a>
+                    </p>
+                </div>
             </div>}
         </div>
     </Fragment>;
