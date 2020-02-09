@@ -285,8 +285,8 @@ export default function Notes() {
                 <div className="text-left">
                     <h4 className="mt-3">App info</h4>
                     <p>Smart contract URL: <a target="_blank"
-                                              href="https://rinkeby.etherscan.io/address/0x25a7D3AD29dba10BE86496B1D6367224B06123D2">
-                        https://rinkeby.etherscan.io/address/0x25a7D3AD29dba10BE86496B1D6367224B06123D2
+                                              href={`https://rinkeby.etherscan.io/address/${address}`}>
+                        https://rinkeby.etherscan.io/address/{address}
                     </a>
                     </p>
                 </div>
