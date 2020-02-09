@@ -146,6 +146,7 @@ const abi = [
     }
 ];
 const address = '0x25a7D3AD29dba10BE86496B1D6367224B06123D2';
+const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 export default function Notes() {
     const [status, setStatus] = useState('loading');
@@ -155,10 +156,17 @@ export default function Notes() {
     const [noteText, setNoteText] = useState('');
     const [error, setError] = useState('');
     const [isWorking, setIsWorking] = useState(false);
+    const [isNotesLoading, setIsNotesLoading] = useState(false);
 
     const appId = 1;
-    const appUrl = 'https://swarm-gateways.net/bzz:/getlogin.eth/';
-    //const appUrl = 'https://localhost:3000/bzz:/getlogin.eth/';
+    let appUrl, scriptUrl;
+    if (isDev) {
+        scriptUrl = "https://localhost:3000/api/last.js";
+        appUrl = 'https://localhost:3000/bzz:/getlogin.eth/';
+    } else {
+        scriptUrl = "https://swarm-gateways.net/bzz:/getlogin.eth/api/last.js";
+        appUrl = 'https://swarm-gateways.net/bzz:/getlogin.eth/';
+    }
 
     let interval = null;
 
@@ -189,6 +197,12 @@ export default function Notes() {
     };
 
     useEffect(_ => {
+        const s = window.document.createElement("script");
+        s.type = "text/javascript";
+        s.async = true;
+        s.src = scriptUrl;
+        window.document.head.appendChild(s);
+
         interval = setInterval(_ => {
             if (window.getLoginApi) {
                 clearInterval(interval);
@@ -198,6 +212,7 @@ export default function Notes() {
     }, []);
 
     const updateNotes = (usernameHash) => {
+        setIsNotesLoading(true);
         return window.getLoginApi.callContractMethod(address, 'getNotes', usernameHash)
             .then(data => {
                 setNotes(data);
@@ -205,17 +220,21 @@ export default function Notes() {
             .catch(e => {
                 console.log(e);
                 setError(e);
+            })
+            .then(_ => {
+                setIsNotesLoading(false);
             });
     };
+
+    const Spinner = <div className="spinner-border text-success" role="status">
+        <span className="sr-only">Loading...</span>
+    </div>;
 
     return <Fragment>
         <h1 className="text-center">Notes app example</h1>
 
         <div className="text-center">
-            {status === 'loading' &&
-            <div className="spinner-border text-success" role="status">
-                <span className="sr-only">Loading...</span>
-            </div>}
+            {status === 'loading' && Spinner}
 
             {status === 'authorize' && <a className="btn btn-success" href={authorizeUrl}>Authorize</a>}
 
@@ -236,7 +255,7 @@ export default function Notes() {
                 <WaitButton disabled={isWorking}>
                     <button disabled={noteText.length === 0} className="btn btn-primary" onClick={_ => {
                         setIsWorking(true);
-                        window.getLoginApi.sendTransaction(address, 'createNote', noteText)
+                        window.getLoginApi.sendTransaction(address, 'createNote', noteText, {resolveMethod: 'mined'})
                             .then(data => {
                                 console.log(data);
                                 return updateNotes(user.usernameHash);
@@ -260,6 +279,8 @@ export default function Notes() {
                         return <p key={index}>ID: {item.id}<br/>{item.text}</p>
                     })}
                 </div>}
+
+                <div className="mt-3">{isNotesLoading && Spinner}</div>
 
                 <div className="text-left">
                     <h4 className="mt-3">App info</h4>
