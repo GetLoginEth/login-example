@@ -18,8 +18,12 @@ contract owned {
     }
 }
 
-abstract contract GetLogin {
+abstract contract GetLoginLogic {
     function getUsernameByAddress(address wallet) public virtual view returns (bytes32);
+}
+
+abstract contract GetLoginStorage {
+    function logicAddress() public virtual view returns (bytes32);
 }
 
 contract Notes is owned {
@@ -31,12 +35,12 @@ contract Notes is owned {
         bool isActive;
     }
 
-    address public getLoginAddress = 0x8cc0D9698824d73A9ae15d69C94ac7335cf082D6;
+    address public getLoginAddress = 0x36ABeeC598Ed9D080dCbAB4c0F5dB764187d5956;
     mapping(bytes32 => Note[]) public UserNotes;
 
     function createNote(string memory text) public {
         bytes32 usernameHash = GetLogin(getLoginAddress).getUsernameByAddress(msg.sender);
-        Note memory note = Note({id: 0, usernameHash: usernameHash, text: text, isActive: true});
+        Note memory note = Note({id : 0, usernameHash : usernameHash, text : text, isActive : true});
         UserNotes[usernameHash].push(note);
         uint256 id = UserNotes[usernameHash].length - 1;
         UserNotes[usernameHash][id].id = id;
@@ -51,6 +55,6 @@ contract Notes is owned {
     }
 
     function setGetLoginAddress(address newAddress) public onlyOwner {
-       getLoginAddress = newAddress;
+        getLoginAddress = newAddress;
     }
 }

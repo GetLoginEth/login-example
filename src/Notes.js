@@ -20,6 +20,19 @@ const abi = [
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newAddress",
+                "type": "address"
+            }
+        ],
+        "name": "setGetLoginAddress",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "getLoginAddress",
         "outputs": [
@@ -95,19 +108,6 @@ const abi = [
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "newAddress",
-                "type": "address"
-            }
-        ],
-        "name": "setGetLoginAddress",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "bytes32",
                 "name": "",
                 "type": "bytes32"
@@ -145,7 +145,7 @@ const abi = [
         "type": "function"
     }
 ];
-const address = '0x25a7D3AD29dba10BE86496B1D6367224B06123D2';
+const address = '0x1b9BAB35a8B4c9CA372C3EF4d7Ba9150105262FD';
 const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 export default function Notes() {
@@ -255,7 +255,7 @@ export default function Notes() {
                 <WaitButton disabled={isWorking}>
                     <button disabled={noteText.length === 0} className="btn btn-primary" onClick={_ => {
                         setIsWorking(true);
-                        window.getLoginApi.sendTransaction(address, 'createNote', noteText, {resolveMethod: 'mined'})
+                        window.getLoginApi.sendTransaction(address, 'createNote', [noteText], {resolveMethod: 'mined'})
                             .then(data => {
                                 console.log(data);
                                 return updateNotes(user.usernameHash);
