@@ -1,5 +1,6 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import WaitButton from "./Elements/WaitButton";
+import {Link} from "react-router-dom";
 
 const getDefaultUri = () => {
     return window.location.href.replace(window.location.hash, '').replace('#', '');
@@ -170,15 +171,30 @@ export default function Notes() {
 
     let interval = null;
 
+    const setAccessToken = token => {
+        localStorage.setItem('access_token', token);
+    };
+
+    const getAccessToken = () => {
+        return localStorage.getItem('access_token');
+    };
+
     const init = () => {
+        window.getLoginApi.setClientAbi(abi);
+        window.getLoginApi.setOnLogout(_ => {
+            setStatus('authorize');
+            setUser(null);
+            setAccessToken(null);
+            window.location.replace('./');
+        });
+
         const start = async () => {
-            const data = await window.getLoginApi.init(appId, appUrl, getDefaultUri());
+            const data = await window.getLoginApi.init(appId, appUrl, getDefaultUri(), getAccessToken());
             console.log(data);
             if (!data.result) {
                 alert('Error: not initialized');
                 return;
             }
-
 
             setAuthorizeUrl(data.data.authorize_url);
             if (data.data.is_client_allowed) {
@@ -186,7 +202,6 @@ export default function Notes() {
                 //setAccessToken(data.data.access_token);
                 const userInfo = await window.getLoginApi.getUserInfo();
                 setUser(userInfo);
-                window.getLoginApi.setClientAbi(abi);
                 updateNotes(userInfo.usernameHash);
             } else {
                 setStatus('authorize');
@@ -197,6 +212,12 @@ export default function Notes() {
     };
 
     useEffect(_ => {
+        const urlAccessToken = (new URLSearchParams(window.location.hash.replace('#', ''))).get('access_token');
+        if (urlAccessToken) {
+            window.location.replace('');
+            setAccessToken(urlAccessToken);
+        }
+
         const s = window.document.createElement("script");
         s.type = "text/javascript";
         s.async = true;
@@ -231,16 +252,34 @@ export default function Notes() {
     </div>;
 
     return <Fragment>
-        <h1 className="text-center">Notes app example</h1>
+        <header>
+            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                <Link className="navbar-brand" to="./">Notes App Example</Link>
+                <button aria-controls="basic-navbar-nav" type="button" aria-label="Toggle navigation"
+                        className="navbar-toggler collapsed">
+                    <span className="navbar-toggler-icon"/>
+                </button>
+                <div className="navbar-collapse collapse" id="basic-navbar-nav">
+                    {user && user.username && <div className="ml-auto navbar-nav">
+                        <a className="nav-link float-right" href="#" onClick={e => {
+                            e.preventDefault();
+                            window.getLoginApi.logout();
+                        }}>Logout ({user.username})</a>
+                    </div>}
+                </div>
+            </nav>
+        </header>
 
-        <div className="text-center">
+        {/*<h1 className="text-center">Notes app example</h1>*/}
+
+        <div className="text-center mt-3">
             {status === 'loading' && Spinner}
 
             {status === 'authorize' && <a className="btn btn-success" href={authorizeUrl}>Authorize</a>}
 
             {user && <div>
                 {/*status === 'authorized' && <p style={{color: 'green'}}>Application authorized!</p>*/}
-                <h4>Hello, {user.username}!</h4>
+                {/*<h4>Hello, {user.username}!</h4>*/}
 
                 {error && error.length > 0 && <p style={{color: 'red'}}>{error}</p>}
 
