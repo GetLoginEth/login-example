@@ -1,17 +1,10 @@
-pragma solidity ^0.6.1;
+pragma solidity ^0.6.4;
 pragma experimental ABIEncoderV2;
 
 contract owned {
     address payable owner;
     constructor() public {owner = msg.sender;}
 
-    // This contract only defines a modifier but does not use
-    // it: it will be used in derived contracts.
-    // The function body is inserted where the special symbol
-    // `_;` in the definition of a modifier appears.
-    // This means that if the owner calls this function, the
-    // function is executed and otherwise, an exception is
-    // thrown.
     modifier onlyOwner {
         require(msg.sender == owner, "Only owner can call this function.");
         _;
@@ -23,7 +16,7 @@ abstract contract GetLoginLogic {
 }
 
 abstract contract GetLoginStorage {
-    function logicAddress() public virtual view returns (bytes32);
+    function logicAddress() public virtual view returns (address);
 }
 
 contract Notes is owned {
@@ -35,11 +28,12 @@ contract Notes is owned {
         bool isActive;
     }
 
-    address public getLoginAddress = 0x36ABeeC598Ed9D080dCbAB4c0F5dB764187d5956;
+    address public getLoginStorageAddress = 0x304438f8b26ADE29187B2192E89a2f8cb61E871F;
     mapping(bytes32 => Note[]) public UserNotes;
 
     function createNote(string memory text) public {
-        bytes32 usernameHash = GetLogin(getLoginAddress).getUsernameByAddress(msg.sender);
+        address getLoginLogicAddress = GetLoginStorage(getLoginStorageAddress).logicAddress();
+        bytes32 usernameHash = GetLoginLogic(getLoginLogicAddress).getUsernameByAddress(msg.sender);
         Note memory note = Note({id : 0, usernameHash : usernameHash, text : text, isActive : true});
         UserNotes[usernameHash].push(note);
         uint256 id = UserNotes[usernameHash].length - 1;
@@ -51,10 +45,11 @@ contract Notes is owned {
     }
 
     function getUsername(address wallet) public view returns (bytes32) {
-        return GetLogin(getLoginAddress).getUsernameByAddress(wallet);
+        address getLoginLogicAddress = GetLoginStorage(getLoginStorageAddress).logicAddress();
+        return GetLoginLogic(getLoginLogicAddress).getUsernameByAddress(wallet);
     }
 
-    function setGetLoginAddress(address newAddress) public onlyOwner {
-        getLoginAddress = newAddress;
+    function setGetLoginStorageAddress(address newAddress) public onlyOwner {
+        getLoginStorageAddress = newAddress;
     }
 }

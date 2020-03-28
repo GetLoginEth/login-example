@@ -28,14 +28,14 @@ const abi = [
                 "type": "address"
             }
         ],
-        "name": "setGetLoginAddress",
+        "name": "setGetLoginStorageAddress",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },
     {
         "inputs": [],
-        "name": "getLoginAddress",
+        "name": "getLoginStorageAddress",
         "outputs": [
             {
                 "internalType": "address",
@@ -146,7 +146,7 @@ const abi = [
         "type": "function"
     }
 ];
-const address = '0x1b9BAB35a8B4c9CA372C3EF4d7Ba9150105262FD';
+const address = '0x1411eD91e667B91e10055E64A61e1e6FE0525140';
 const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 export default function Notes() {
