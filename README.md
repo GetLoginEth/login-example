@@ -1,6 +1,9 @@
 ## GetLogin test app
 
+Latest uploaded version (31.05.20) - https://swarm-gateways.net/bzz:/2b09aabccbf10d20c597620baca632cade624eb413678652d4003d0def88c33c/
+
 Here you can test GetLogin. https://projecturl/ - display web3 app, https://projecturl/openid - display OpenID Connect form
+
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
