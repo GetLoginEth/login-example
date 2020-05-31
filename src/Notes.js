@@ -169,8 +169,6 @@ export default function Notes() {
         appUrl = 'https://swarm-gateways.net/bzz:/getlogin.eth/';
     }
 
-    let interval = null;
-
     const setAccessToken = token => {
         localStorage.setItem('access_token', token);
     };
@@ -212,6 +210,11 @@ export default function Notes() {
     };
 
     useEffect(_ => {
+        window._onGetLoginApiLoaded = instance => {
+            window.getLoginApi = instance;
+            init();
+
+        };
         const urlAccessToken = (new URLSearchParams(window.location.hash.replace('#', ''))).get('access_token');
         if (urlAccessToken) {
             window.location.replace('');
@@ -224,12 +227,6 @@ export default function Notes() {
         s.src = scriptUrl;
         window.document.head.appendChild(s);
 
-        interval = setInterval(_ => {
-            if (window.getLoginApi) {
-                clearInterval(interval);
-                init();
-            }
-        }, 100);
     }, []);
 
     const updateNotes = (usernameHash) => {
