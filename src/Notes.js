@@ -6,7 +6,7 @@ const getDefaultUri = () => {
     return window.location.href.replace(window.location.hash, '').replace('#', '');
 };
 
-const abi = [
+const notesAbi = [
     {
         "inputs": [
             {
@@ -146,7 +146,7 @@ const abi = [
         "type": "function"
     }
 ];
-const address = '0x1411eD91e667B91e10055E64A61e1e6FE0525140';
+const notesContractAddress = '0x1411eD91e667B91e10055E64A61e1e6FE0525140';
 const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 export default function Notes() {
@@ -178,7 +178,7 @@ export default function Notes() {
     };
 
     const init = () => {
-        window.getLoginApi.setClientAbi(abi);
+        window.getLoginApi.setClientAbi(notesAbi);
         window.getLoginApi.setOnLogout(_ => {
             setStatus('authorize');
             setUser(null);
@@ -213,7 +213,6 @@ export default function Notes() {
         window._onGetLoginApiLoaded = instance => {
             window.getLoginApi = instance;
             init();
-
         };
         const urlAccessToken = (new URLSearchParams(window.location.hash.replace('#', ''))).get('access_token');
         if (urlAccessToken) {
@@ -231,7 +230,7 @@ export default function Notes() {
 
     const updateNotes = (usernameHash) => {
         setIsNotesLoading(true);
-        return window.getLoginApi.callContractMethod(address, 'getNotes', usernameHash)
+        return window.getLoginApi.callContractMethod(notesContractAddress, 'getNotes', usernameHash)
             .then(data => {
                 setNotes(data);
             })
@@ -291,7 +290,7 @@ export default function Notes() {
                 <WaitButton disabled={isWorking}>
                     <button disabled={noteText.length === 0} className="btn btn-primary" onClick={_ => {
                         setIsWorking(true);
-                        window.getLoginApi.sendTransaction(address, 'createNote', [noteText], {resolveMethod: 'mined'})
+                        window.getLoginApi.sendTransaction(notesContractAddress, 'createNote', [noteText], {resolveMethod: 'mined'})
                             .then(data => {
                                 console.log(data);
                                 return updateNotes(user.usernameHash);
@@ -321,8 +320,8 @@ export default function Notes() {
                 <div className="text-left">
                     <h4 className="mt-3">App info</h4>
                     <p>Smart contract URL: <a target="_blank"
-                                              href={`https://rinkeby.etherscan.io/address/${address}`}>
-                        https://rinkeby.etherscan.io/address/{address}
+                                              href={`https://rinkeby.etherscan.io/address/${notesContractAddress}`}>
+                        https://rinkeby.etherscan.io/address/{notesContractAddress}
                     </a>
                     </p>
                 </div>
