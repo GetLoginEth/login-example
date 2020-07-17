@@ -5,10 +5,10 @@ const getDefaultUri = () => {
 };
 
 function Main() {
-    const baseApiUrl = 'https://localhost:3000/bzz:/getlogin.eth/';
+    const baseApiUrl = 'https://getlogin.localhost:3000/';
     const [appId, setAppId] = useState(1);
-    const [url, setUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/xauthorize');
-    const [pluginUrl, setPluginUrl] = useState('https://localhost:3000/bzz:/getlogin.eth/xplugin');
+    const [url, setUrl] = useState('https://getlogin.localhost:3000/xauthorize');
+    const [pluginUrl, setPluginUrl] = useState('https://getlogin.localhost:3000/xplugin');
     const [redirectUri, setRedirectUri] = useState(getDefaultUri());
     const [responseType, setResponseType] = useState('id_token');
 

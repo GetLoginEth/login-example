@@ -162,11 +162,11 @@ export default function Notes() {
     const appId = 1;
     let appUrl, scriptUrl;
     if (isDev) {
-        scriptUrl = "https://localhost:3000/api/last.js";
-        appUrl = 'https://localhost:3000/bzz:/getlogin.eth/';
+        scriptUrl = "https://getlogin.localhost:3000/api/last.js";
+        appUrl = 'https://getlogin.localhost:3000/';
     } else {
-        scriptUrl = "https://swarm-gateways.net/bzz:/getlogin.eth/api/last.js";
-        appUrl = 'https://swarm-gateways.net/bzz:/getlogin.eth/';
+        scriptUrl = "https://getlogin.swarm-gateways.net/api/last.js";
+        appUrl = 'https://getlogin.swarm-gateways.net/';
     }
 
     const setAccessToken = token => {
