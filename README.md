@@ -1,6 +1,6 @@
 ## GetLogin test app
 
-Latest uploaded version (17.06.20) - https://swarm-gateways.net/bzz:/f537a19085d551ef30497336b7e2667f7fc1b3ffe242b9c38139e7942938c4c4/
+Latest uploaded version (17.07.20) - https://swarm-gateways.net/bzz:/20fc267063d51610985237ff97a8cc77aad31ef78cc5bb1bd818f50c1bd59ff1/
 
 Here you can test GetLogin. https://projecturl/ - display web3 app, https://projecturl/openid - display OpenID Connect form
 
