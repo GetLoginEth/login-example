@@ -266,8 +266,6 @@ export default function Notes() {
             </nav>
         </header>
 
-        {/*<h1 className="text-center">Notes app example</h1>*/}
-
         <div className="text-center mt-3">
             {status === 'loading' && Spinner}
 
@@ -310,7 +308,7 @@ export default function Notes() {
 
                 {notes && notes.length > 0 && <div style={{textAlign: 'left'}}>
                     <h4 className="mt-3">My notes</h4>
-                    {notes.map((item, index) => {
+                    {[...notes].reverse().map((item, index) => {
                         return <p key={index}>ID: {item.id}<br/>{item.text}</p>
                     })}
                 </div>}
