@@ -183,7 +183,7 @@ export default function Notes() {
             setStatus('authorize');
             setUser(null);
             setAccessToken(null);
-            window.location.replace('./');
+            window.location.reload();
         });
 
         const start = async () => {
@@ -259,7 +259,9 @@ export default function Notes() {
                     {user && user.username && <div className="ml-auto navbar-nav">
                         <a className="nav-link float-right" href="#" onClick={e => {
                             e.preventDefault();
-                            window.getLoginApi.logout();
+                            if(window.confirm('Logout?')){
+                                window.getLoginApi.logout();
+                            }
                         }}>Logout ({user.username})</a>
                     </div>}
                 </div>
