@@ -146,11 +146,10 @@ const notesAbi = [
         "type": "function"
     }
 ];
-const notesContractAddress = '0x1411eD91e667B91e10055E64A61e1e6FE0525140';
-const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+const notesContractAddress = '0xf6b270136Da7F8a2113B93a3b9Eeaf5160C45bA0';
+// const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 export default function Notes() {
-    const [status, setStatus] = useState('loading');
     const [authorizeUrl, setAuthorizeUrl] = useState(null);
     const [user, setUser] = useState(null);
     const [notes, setNotes] = useState([]);
@@ -159,15 +158,13 @@ export default function Notes() {
     const [isWorking, setIsWorking] = useState(false);
     const [isNotesLoading, setIsNotesLoading] = useState(false);
 
-    const appId = 1;
-    let appUrl, scriptUrl;
-    if (isDev) {
-        scriptUrl = "https://getlogin.localhost:3000/api/last.js";
-        appUrl = 'https://getlogin.localhost:3000/';
-    } else {
-        scriptUrl = "https://getlogin.swarm-gateways.net/api/last.js";
-        appUrl = 'https://getlogin.swarm-gateways.net/';
-    }
+    const [GLStatus, setGLStatus] = useState('loading');
+    const [GLInstance, setGLInstance] = useState(null);
+
+    const REWARD_APP_ID = 3;
+    const GL_BASE_URL = 'https://getlogin.org/';
+    const RETURN_URL = 'https://testeron.pro/gl-notes';
+    // const GL_BASE_URL = 'https://getlogin.localhost:3000/';
 
     const setAccessToken = token => {
         localStorage.setItem('access_token', token);
@@ -177,60 +174,16 @@ export default function Notes() {
         return localStorage.getItem('access_token');
     };
 
-    const init = () => {
-        window.getLoginApi.setClientAbi(notesAbi);
-        window.getLoginApi.setOnLogout(_ => {
-            setStatus('authorize');
-            setUser(null);
-            setAccessToken(null);
-            window.location.reload();
-        });
-
-        const start = async () => {
-            const data = await window.getLoginApi.init(appId, appUrl, getDefaultUri(), getAccessToken());
-            console.log(data);
-            if (!data.result) {
-                alert('Error: not initialized');
-                return;
-            }
-
-            setAuthorizeUrl(data.data.authorize_url);
-            if (data.data.is_client_allowed) {
-                setStatus('authorized');
-                //setAccessToken(data.data.access_token);
-                const userInfo = await window.getLoginApi.getUserInfo();
-                setUser(userInfo);
-                updateNotes(userInfo.usernameHash);
-            } else {
-                setStatus('authorize');
-            }
-        };
-
-        start().then();
+    const onLogout = () => {
+        console.log('Logged out');
+        setAccessToken('');
+        setGLStatus('not_logged');
+        setUser(null);
     };
 
-    useEffect(_ => {
-        window._onGetLoginApiLoaded = instance => {
-            window.getLoginApi = instance;
-            init();
-        };
-        const urlAccessToken = (new URLSearchParams(window.location.hash.replace('#', ''))).get('access_token');
-        if (urlAccessToken) {
-            window.location.replace('');
-            setAccessToken(urlAccessToken);
-        }
-
-        const s = window.document.createElement("script");
-        s.type = "text/javascript";
-        s.async = true;
-        s.src = scriptUrl;
-        window.document.head.appendChild(s);
-
-    }, []);
-
-    const updateNotes = (usernameHash) => {
+    const updateNotes = (usernameHash, instance = null) => {
         setIsNotesLoading(true);
-        return window.getLoginApi.callContractMethod(notesContractAddress, 'getNotes', usernameHash)
+        return (instance ? instance : GLInstance).callContractMethod(notesContractAddress, 'getNotes', usernameHash)
             .then(data => {
                 setNotes(data);
             })
@@ -242,6 +195,47 @@ export default function Notes() {
                 setIsNotesLoading(false);
             });
     };
+
+    useEffect(() => {
+        function checkAccessToken() {
+            const urlAccessToken = (new URLSearchParams(window.location.hash.replace('#', ''))).get('access_token');
+            if (urlAccessToken) {
+                window.location.replace('');
+                setAccessToken(urlAccessToken);
+            }
+        }
+
+        function injectGetLogin() {
+            const script = document.createElement('script');
+            script.src = `${GL_BASE_URL}api/last.js?${Math.random()}`;
+            script.async = true;
+            script.type = 'module';
+            script.onload = async () => {
+                const instance = new window._getLoginApi();
+                instance.onLogout = onLogout;
+                setGLInstance(instance);
+                setGLStatus('auth_checking');
+                const result = await instance.init(REWARD_APP_ID, GL_BASE_URL, RETURN_URL, getAccessToken());
+                console.log('result', result);
+                if (result.data.is_client_allowed) {
+                    setGLStatus('logged');
+                    const userInfo = await instance.getUserInfo();
+                    setUser(userInfo);
+                    instance.setClientAbi(notesAbi);
+                    updateNotes(userInfo.usernameHash, instance);
+                } else {
+                    setGLStatus('not_logged');
+                }
+
+                setAuthorizeUrl(instance.getAuthorizeUrl());
+            };
+
+            document.body.appendChild(script);
+        }
+
+        checkAccessToken();
+        injectGetLogin();
+    }, []);
 
     const Spinner = <div className="spinner-border text-success" role="status">
         <span className="sr-only">Loading...</span>
@@ -259,8 +253,8 @@ export default function Notes() {
                     {user && user.username && <div className="ml-auto navbar-nav">
                         <a className="nav-link float-right" href="#" onClick={e => {
                             e.preventDefault();
-                            if(window.confirm('Logout?')){
-                                window.getLoginApi.logout();
+                            if (window.confirm('Logout?')) {
+                                GLInstance.logout();
                             }
                         }}>Logout ({user.username})</a>
                     </div>}
@@ -269,11 +263,11 @@ export default function Notes() {
         </header>
 
         <div className="text-center mt-3">
-            {status === 'loading' && Spinner}
+            {(GLStatus === 'loading' || GLStatus === 'auth_checking') && Spinner}
 
-            {status === 'authorize' && <a className="btn btn-success" href={authorizeUrl}>Authorize</a>}
+            {GLStatus === 'not_logged' && <a className="btn btn-success" href={authorizeUrl}>Authorize</a>}
 
-            {user && <div>
+            {GLStatus === 'logged' && <div>
                 {/*status === 'authorized' && <p style={{color: 'green'}}>Application authorized!</p>*/}
                 {/*<h4>Hello, {user.username}!</h4>*/}
 
@@ -290,7 +284,7 @@ export default function Notes() {
                 <WaitButton disabled={isWorking}>
                     <button disabled={noteText.length === 0} className="btn btn-primary" onClick={_ => {
                         setIsWorking(true);
-                        window.getLoginApi.sendTransaction(notesContractAddress, 'createNote', [noteText], {resolveMethod: 'mined'})
+                        GLInstance.sendTransaction(notesContractAddress, 'createNote', [noteText], {resolveMethod: 'mined'})
                             .then(data => {
                                 console.log(data);
                                 return updateNotes(user.usernameHash);
@@ -320,8 +314,8 @@ export default function Notes() {
                 <div className="text-left">
                     <h4 className="mt-3">App info</h4>
                     <p>Smart contract URL: <a target="_blank"
-                                              href={`https://rinkeby.etherscan.io/address/${notesContractAddress}`}>
-                        https://rinkeby.etherscan.io/address/{notesContractAddress}
+                                              href={`https://blockscout.com/xdai/mainnet/address/${notesContractAddress}`}>
+                        https://blockscout.com/xdai/mainnet/address/{notesContractAddress}
                     </a>
                     </p>
                 </div>

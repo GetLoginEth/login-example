@@ -1,8 +1,8 @@
-pragma solidity ^0.6.4;
-pragma experimental ABIEncoderV2;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.7;
 
 contract owned {
-    address payable owner;
+    address owner;
     constructor() public {owner = msg.sender;}
 
     modifier onlyOwner {
@@ -28,7 +28,7 @@ contract Notes is owned {
         bool isActive;
     }
 
-    address public getLoginStorageAddress = 0x304438f8b26ADE29187B2192E89a2f8cb61E871F;
+    address public getLoginStorageAddress = 0xCaC5144CDf47C4e5BB58D572E56234510f818D81;
     mapping(bytes32 => Note[]) public UserNotes;
 
     function createNote(string memory text) public {
