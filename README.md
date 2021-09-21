@@ -1,6 +1,6 @@
 ## GetLogin test app
 
-Here you can test GetLogin. https://projecturl/ - display web3 app, https://projecturl/openid - display OpenID Connect form
+Project uploaded here - https://testeron.pro/gl-notes/
 
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
